@@ -75,7 +75,7 @@ pub struct PackageInfo {
     ///
     /// This is the version of the package itself, not the version of the application
     /// being installed.
-    pub version: u32,
+    pub version: String,
 
     // End of attributes. Beginning of elements.
     #[serde(default)]
@@ -108,7 +108,7 @@ pub struct PackageInfo {
 
     /// Scripts to run before and after install.
     #[serde(default)]
-    pub scripts: Vec<Script>,
+    pub scripts: Option<Script>,
 
     #[serde(default)]
     pub strict_identifiers: Vec<BundleRef>,
@@ -136,7 +136,7 @@ impl Default for PackageInfo {
             preserve_xattr: None,
             relocatable: None,
             use_hfs_plus_compression: None,
-            version: 0,
+            version: "0".to_string(),
             atomic_update_bundle: vec![],
             bundle: vec![],
             bundle_version: vec![],
@@ -145,7 +145,7 @@ impl Default for PackageInfo {
             patch: vec![],
             payload: None,
             relocate: vec![],
-            scripts: vec![],
+            scripts: None,
             strict_identifiers: vec![],
             update_bundle: vec![],
             upgrade_bundle: vec![],
@@ -199,12 +199,12 @@ pub struct BundleRef {
 
 /// An entry in <scripts>.
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub enum Script {
+pub struct Script {
     #[serde(rename = "preinstall")]
-    PreInstall(PreInstall),
+    pub preinstall: PreInstall,
 
     #[serde(rename = "postinstall")]
-    PostInstall(PostInstall),
+    pub postinstall: PostInstall,
 }
 
 /// A script to run before install.
