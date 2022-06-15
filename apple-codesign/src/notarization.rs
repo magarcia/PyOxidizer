@@ -471,11 +471,10 @@ pub fn write_flat_package_to_app_store_package<F: Read + Seek + Debug>(
             None => {
                 error!("unable to find package identifier in component package (please report this bug)");
                 return Err(AppleCodesignError::NotarizeFlatPackageParse);
-            },
+            }
         };
 
         id
-
     } else {
         error!("do not know how to extract bundle identifier from package installer");
         error!("please report this bug");
@@ -829,10 +828,25 @@ impl Notarizer {
         );
 
         let start_time = std::time::Instant::now();
+        let mut errors = 0;
 
         loop {
-            let status = self.get_upload_status(upload_id)?;
+            let response = self.get_upload_status(upload_id);
 
+            let status = match response {
+                Ok(r) => r,
+                Err(e) => {
+                    errors = errors + 1;
+                    if errors >= 3 {
+                        return Err(e);
+                    }
+                    warn!(
+                        "error returned for package upload {}, retrying {}/3",
+                        upload_id, errors
+                    );
+                    continue;
+                }
+            };
             let elapsed = start_time.elapsed();
 
             info!(
